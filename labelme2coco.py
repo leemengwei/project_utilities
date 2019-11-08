@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 # !/usr/bin/env python
- 
+import os 
+import shutil
 import argparse
 import json
 import matplotlib.pyplot as plt
@@ -12,7 +13,7 @@ import glob
 import PIL.Image
 import sys 
 from tqdm import tqdm
-
+from IPython import embed
 class MyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.integer):
@@ -25,7 +26,7 @@ class MyEncoder(json.JSONEncoder):
             return super(MyEncoder, self).default(obj)
  
 class labelme2coco(object):
-    def __init__(self, labelme_json=[], save_json_path='./train.json', reassign_list = None, something_dont_want = None):
+    def __init__(self, labelme_json=[], save_json_path='./train.json', reassign_list = None, something_dont_want = None, label_to_id = {}):
         self.labelme_json = labelme_json
         self.save_json_path = save_json_path
         self.images = []
@@ -38,7 +39,7 @@ class labelme2coco(object):
         self.width = 0
         self.reassign_list = reassign_list
         self.something_dont_want = something_dont_want
- 
+        self.label_to_id = label_to_id
 
     def label_reassign(self, label):
         if self.reassign_list is not None:
@@ -56,7 +57,9 @@ class labelme2coco(object):
                     self.images.append(self.image(data, num))
                 except:  
                     print(num, json_file)
-                    print("Problem with image json, skipping...")
+                    print("Problem with image json, skipping ...")
+                    #print("mv %s %s"%(json_file, json_file+"_corrupt"))
+                    #shutil.move(json_file, json_file+"_corrupt")
                     continue
                 for shapes in data['shapes']:
                     #print(".", end='')
@@ -92,7 +95,7 @@ class labelme2coco(object):
         categorie = {}
         categorie['supercategory'] = 'component'
         #categorie['id'] = len(self.label) + 1  # 0 默认为背景
-        categorie['id'] = label_to_id[label]  #Make id consistent over runs!!!!
+        categorie['id'] = self.label_to_id[label]  #Make id consistent over runs!!!!
         categorie['name'] = label
         print(categorie)
         return categorie
@@ -156,21 +159,21 @@ class labelme2coco(object):
         self.data_coco = self.data2coco()
         json.dump(self.data_coco, open(self.save_json_path, 'w'), indent=4, cls=MyEncoder)  # indent=4 更加美观显示
  
- 
-reassign_list = None
-reassign_list = {"head":"head", "head1":"head", "head2":"head", "head3":"head", "head4":"head", "head5":"head", "head6":"head", "angle_r":"angle", "angle":"angle", "top_r":"top", "top":"top"}
-label_to_id = {"angle":1, "top":2, "head":3}
-something_dont_want = None
-something_dont_want = ['..', 'bmp']
-#labelme_json = glob.glob('../data/train_det/*.json')
-#labelme_json = glob.glob('../data/train_seg/*.json')
-#labelme2coco(labelme_json, './train_seg.json')
-#labelme_json = glob.glob('../data/val_seg/*.json')
-#labelme2coco(labelme_json, './val_seg.json')
-
-#labelme_json = glob.glob('../data/train_det/*.json')
-#labelme2coco(labelme_json, './train_det.json')
-mode = "train"
-labelme_json = glob.glob('./%s/*/*.json'%mode)
-runner = labelme2coco(labelme_json, './%s.json'%mode, reassign_list, something_dont_want)
-runner.save_json()
+if __name__ == "__main__": 
+    reassign_list = None
+    reassign_list = {"head":"head", "head1":"head", "head2":"head", "head3":"head", "head4":"head", "head5":"head", "head6":"head", "angle_r":"angle", "angle":"angle", "top_r":"top", "top":"top"}
+    label_to_id = {"angle":1, "top":2, "head":3}
+    something_dont_want = None
+    something_dont_want = ['..', 'bmp']
+    #labelme_json = glob.glob('../data/train_det/*.json')
+    #labelme_json = glob.glob('../data/train_seg/*.json')
+    #labelme2coco(labelme_json, './train_seg.json')
+    #labelme_json = glob.glob('../data/val_seg/*.json')
+    #labelme2coco(labelme_json, './val_seg.json')
+    
+    #labelme_json = glob.glob('../data/train_det/*.json')
+    #labelme2coco(labelme_json, './train_det.json')
+    mode = "val"
+    labelme_json = glob.glob('./%s/*/*.json'%mode)
+    runner = labelme2coco(labelme_json, './%s.json'%mode, reassign_list, something_dont_want, label_to_id)
+    runner.save_json()
