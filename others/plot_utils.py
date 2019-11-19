@@ -567,3 +567,55 @@ def report_it(func):
         return ret
     return run
 
+
+try:
+    from vispy import app, visuals, scene
+    def GPU_3d_scatter_plot(pos, colors):
+        # build your visuals, that's all
+        Scatter3D = scene.visuals.create_visual_node(visuals.MarkersVisual)
+        
+        # The real-things : plot using scene
+        # build canvas
+        canvas = scene.SceneCanvas(keys='interactive', show=True)
+        
+        # Add a ViewBox to let the user zoom/rotate
+        view = canvas.central_widget.add_view()
+        view.camera = 'turntable'
+        view.camera.fov = 45
+        view.camera.distance = 1100
+    
+        # plot ! note the parent parameter
+        p1 = Scatter3D(parent=view.scene)
+        p1.set_gl_state('translucent', blend=True, depth_test=False)
+        p1.set_data(pos, face_color=colors, symbol='o', size=6,
+                    edge_width=0.5, edge_color='blue')
+        #Note:
+        #When back to main, call vispy.app.run() to show
+except:
+    def GPU_3d_scatter_plot(pos, colors):
+        print("No vispy, Not Implemented.")
+
+
+try:
+    from vispy import app, visuals, scene
+    from vispy.plot import Fig
+    def GPU_2d_scatter_plot(data):
+        fig = Fig()
+        ax_left = fig[0,0]
+        ax_right = fig[0,1]
+        ax_left.plot(data, line_kind='-', color='b', width=2, xlabel="xlabel")
+        #Vispy 0.6 currently lack axis!
+        ax_left.title = "Data"
+        ax_left.xlabel = "Xlabel"
+        ax_left.ylabel = "Ylabel"
+        #Note:
+        #When back to main, call vispy.app.run() to show
+except:
+    def GPU_2d_scatter_plot(data):
+        print("No vispy, Not Implemented.")
+
+
+
+
+
+
