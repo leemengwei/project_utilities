@@ -9,7 +9,8 @@ from IPython import embed
 import base64
 from labelme import utils
 
-def single_csv_to_labelme_json(image_path, anno_file, annotations):
+def single_csv_to_labelme_json(image_path, anno_file):
+    annotations = pd.read_csv(anno_file,header=None).values
     total_csv_annotations = {}
     for annotation in annotations:
         key = annotation[0].split(os.sep)[-1]
@@ -51,6 +52,5 @@ def single_csv_to_labelme_json(image_path, anno_file, annotations):
 if __name__ == "__main__":
     image_path = "../data_generation/"
     anno_file = "../data_generation/generate_00001.csv"
-    annotations = pd.read_csv(anno_file,header=None).values
-    single_csv_to_labelme_json(image_path, anno_file, annotations)    
+    single_csv_to_labelme_json(image_path, anno_file)    
 
