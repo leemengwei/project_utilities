@@ -17,7 +17,8 @@ from sklearn.model_selection import train_test_split
 np.random.seed(41)
 
 #0为背景
-classname_to_id = {"angle": 1, "angle_r":2, "top":3, "top_r":4, "head":5}
+#classname_to_id = {"angle": 1, "angle_r":2, "top":3, "top_r":4, "head":5}
+classname_to_id = {"brick": 1}
 
 class Csv2CoCo:
 
