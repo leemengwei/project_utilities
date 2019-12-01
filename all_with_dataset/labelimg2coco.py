@@ -125,4 +125,4 @@ if __name__ == '__main__':
     reassign_list = {"head":"head", "head1":"head", "head2":"head", "head3":"head", "head4":"head", "head5":"head", "head6":"head", "angle_r":"angle", "angle":"angle", "top_r":"top", "top":"top"}
     label_to_id = {"angle":1, "top":2, "head":3}
 
-    convert("XML_LIST.txt", './', 'convert_output_json.json', reassign_list, label_to_id)
+    convert("XML_LIST.txt", './', 'output_json.json', reassign_list, label_to_id)

@@ -1360,7 +1360,7 @@ class MainWindow(QMainWindow, WindowMixin):
            scores = np.hstack((scores, threshold))
            label_names.append(label)
        exlabelimg_bboxes = np.hstack((np.hstack((bboxes, bboxes[:,-1].reshape(-1,1))), labels.reshape(-1,1)))
-       exlabelimg_bboxes[np.where(exlabelimg_bboxes[:,4]>=CONFIDENCE_THRESHOLD)]
+       exlabelimg_bboxes = exlabelimg_bboxes[np.where(exlabelimg_bboxes[:,4]>=CONFIDENCE_THRESHOLD)]
        exlabelimg_bboxes = FloatTensor(exlabelimg_bboxes).to(self.device)
        return exlabelimg_bboxes
 
@@ -1573,11 +1573,14 @@ class MainWindow(QMainWindow, WindowMixin):
             self.setDirty()
 
     def deleteSelectedShape(self):
-        self.remLabel(self.canvas.deleteSelected())
-        self.setDirty()
-        if self.noShapes():
-            for action in self.actions.onShapesPresent:
-                action.setEnabled(False)
+        try:
+            self.remLabel(self.canvas.deleteSelected())
+            self.setDirty()
+            if self.noShapes():
+                for action in self.actions.onShapesPresent:
+                    action.setEnabled(False)
+        except Exception as e:
+            print("Error", e)
 
     def chshapeLineColor(self):
         color = self.colorDialog.getColor(self.lineColor, u'Choose line color',
