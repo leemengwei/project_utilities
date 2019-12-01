@@ -55,27 +55,29 @@ class labelme2coco(object):
                 data = json.load(fp)
                 try:  
                     self.images.append(self.image(data, num))
-                except:  
+                except Exception as e:  
                     print(num, json_file)
-                    print("Problem with image json, skipping ...")
+                    print("Problem with image json, skipping ...", e)
                     #print("mv %s %s"%(json_file, json_file+"_corrupt"))
                     #shutil.move(json_file, json_file+"_corrupt")
                     continue
                 for shapes in data['shapes']:
                     #print(".", end='')
                     sys.stdout.flush()
-                    label = shapes['label']
-                    label = self.label_reassign(label)
+                    raw_label_name = shapes['label']
+                    label = self.label_reassign(raw_label_name)     #Change from head12345 to head and somethings like that.
                     if label not in self.label:
-                        self.categories.append(self.categorie(label))
+                        self.categories.append(self.get_categorie(label))
                         self.label.append(label)
                     points = shapes['points']#这里的point是用rectangle标注得到的，只有两个点，需要转成四个点
                     points.append([points[0][0],points[1][1]])
                     points.append([points[1][0],points[0][1]])
-                    self.annotations.append(self.annotation(points, label, num))
+                    self.annotations.append(self.get_annotation(points, label, num))
+                    #print(self.get_annotation(points, label, num), "at %s"%label)
                     self.annID += 1
  
     def image(self, data, num):
+        #embed()
         image = {}
         img = utils.img_b64_to_arr(data['imageData']) 
         height, width = img.shape[:2]
@@ -91,16 +93,16 @@ class labelme2coco(object):
  
         return image
  
-    def categorie(self, label):
+    def get_categorie(self, label):
         categorie = {}
         categorie['supercategory'] = 'component'
         #categorie['id'] = len(self.label) + 1  # 0 默认为背景
-        categorie['id'] = self.label_to_id[label]  #Make id consistent over runs!!!!
+        categorie['id'] = self.label_to_id[label]  #Make id consistent over runs...
         categorie['name'] = label
         print(categorie)
         return categorie
  
-    def annotation(self, points, label, num):
+    def get_annotation(self, points, label, num):
         annotation = {}
         annotation['segmentation'] = [list(np.asarray(points).flatten())]
         annotation['iscrowd'] = 0
@@ -116,7 +118,9 @@ class labelme2coco(object):
     def getcatid(self, label):
         for categorie in self.categories:
             if label == categorie['name']:
+                #print("returning %s for %s"%(categorie['id'], label))
                 return categorie['id']
+        print("warning, %s not temporary in %s"%(label, self.categories))
         return 1
  
     def getbbox(self, points):
@@ -149,9 +153,17 @@ class labelme2coco(object):
  
     def data2coco(self):
         data_coco = {}
-        data_coco['images'] = self.images
+        ids = np.array([i['id'] for i in self.categories])     #WTF:  I've check all the transfer which is correct. Yet model is still bug with class order. I can only assume that when reading the coco.json in mmdetection, THIS order matters. So I re-sort them here.
+        self.categories = list(np.array(self.categories)[np.argsort(ids)])
         data_coco['categories'] = self.categories
+        data_coco['images'] = self.images
         data_coco['annotations'] = self.annotations
+        print("Using:%s"%self.categories)
+        print("Check THESE mannually if you're not assured:----------------------")
+        try:
+            print(self.images[0]['file_name'], 'should have at least some of these followed:', self.annotations[0:4])
+        except Exception as e:
+            print(e)
         return data_coco
  
     def save_json(self):
@@ -164,7 +176,7 @@ if __name__ == "__main__":
     reassign_list = None
     reassign_list = {"head":"head", "head1":"head", "head2":"head", "head3":"head", "head4":"head", "head5":"head", "head6":"head", "angle_r":"angle", "angle":"angle", "top_r":"top", "top":"top"}
     label_to_id = {"angle":1, "top":2, "head":3}
-    something_dont_want = None
+    something_dont_want = []
     something_dont_want = ['..', 'bmp']
     #labelme_json = glob.glob('../data/train_det/*.json')
     #labelme_json = glob.glob('../data/train_seg/*.json')
@@ -174,7 +186,9 @@ if __name__ == "__main__":
     
     #labelme_json = glob.glob('../data/train_det/*.json')
     #labelme2coco(labelme_json, './train_det.json')
-    mode = "val"
+    #mode = "mannual_select_%s"%sys.argv[1]
+    mode = "xml2json"
     labelme_json = glob.glob('./%s/*/*.json'%mode)
+    print("jsons:%s"%labelme_json)
     runner = labelme2coco(labelme_json, './%s.json'%mode, reassign_list, something_dont_want, label_to_id)
     runner.save_json()

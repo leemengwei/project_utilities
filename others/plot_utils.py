@@ -528,7 +528,7 @@ def visual(Y, predicted, method, args, extra=None, title=None, epoch=None):
         ax1.scatter(range(len(Y.reshape(-1)))[::skipper], Y.reshape(-1)[::skipper], label='real', s=0.5)
         ax1.scatter(np.array(range(len(predicted)))[train_index][::skipper], predicted[train_index][::skipper], label='trainset %s predicted'%method, s=0.5)
         ax1.scatter(np.array(range(len(predicted)))[val_index][::skipper], predicted[val_index][::skipper], label='valset %s predicted'%method, s=2)
-    plt.title("Relative error rate: low:{:.2f}% high:{:.2f}%".format(np.array(title[0]), np.array(title[1])))
+    plt.title("Relative error rate: {:.2f}%".format(np.array(title[1])))
     #plt.ylim(-3, 3)
     plt.legend()
     plt.savefig("../gifs/%s_%s.png"%(args.further_mode, str(epoch).zfill(4)))

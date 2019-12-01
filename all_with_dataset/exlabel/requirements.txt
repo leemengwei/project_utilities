@@ -1,0 +1,21 @@
+## python3.6
+## pip install torch -i https://mirrors.aliyun.com/pypi/simple
+## python3.6 -m pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple
+## pip install --upgrade setuptools
+## pip install --upgrade pip
+numpy
+opencv-python
+resources
+staty
+PyQt5
+pillow
+##sip
+lxml
+matplotlib
+torch
+
+## instatll resources.py
+## pyrcc5 -o resources.py resources.qrc
+
+
+
