@@ -1360,6 +1360,7 @@ class MainWindow(QMainWindow, WindowMixin):
            scores = np.hstack((scores, threshold))
            label_names.append(label)
        exlabelimg_bboxes = np.hstack((np.hstack((bboxes, bboxes[:,-1].reshape(-1,1))), labels.reshape(-1,1)))
+       exlabelimg_bboxes[np.where(exlabelimg_bboxes[:,4]>=CONFIDENCE_THRESHOLD)]
        exlabelimg_bboxes = FloatTensor(exlabelimg_bboxes).to(self.device)
        return exlabelimg_bboxes
 
@@ -1422,8 +1423,8 @@ class MainWindow(QMainWindow, WindowMixin):
         cam_frame = skimage.color.gray2rgb(cam_frame).astype(np.float32)/255.0
         net_cam_frame = cam_frame*255
         boxes = self.single_gpu_frame_detection(self.model, net_cam_frame, CONFIDENCE_THRESHOLD, show=False)
+        print("find:%s"%boxes)
         if boxes is None or len(boxes) < 1:
-            print("not find target!")
             return
 
         targets = []
