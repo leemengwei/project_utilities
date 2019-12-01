@@ -417,6 +417,7 @@ class MainWindow(QMainWindow, WindowMixin):
         # Auto saving : Enble auto saving if pressing next
         self.autoSaving = QAction("Auto Saving", self)
         self.autoSaving.setCheckable(True)
+        self.autoSaving.setChecked(True)
 
         # Sync single class mode from PR#106
         self.singleClassMode = QAction("Single Class Mode", self)
