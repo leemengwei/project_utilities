@@ -13,6 +13,17 @@ from pp import filter_string_of_text_remove_overlap
 from functools import partial
 from collections import defaultdict
 
+#With mmdetection:
+import torch
+from torch import transpose, FloatTensor
+from mmdet.apis import init_detector
+import mmcv
+import skimage.io
+from IPython import embed
+import numpy as np
+import time
+from mmdet.apis import inference_detector, show_result,init_detector
+
 try:
     from PyQt5.QtGui import *
     from PyQt5.QtCore import *
@@ -57,8 +68,9 @@ __appname__ = 'labelImg'
 
 
 IMG_SIZE = 1024
-yolov3_cfg_name = "/mfs/home/limengwei/car_face/car_face/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4_more_neg.py"
-yolov3_pt_name = "/mfs/home/limengwei/car_face/car_face/object_detection_logs_data_both_side_finetunes/hrnet_epoch_7_head944_conf049.pth"
+CONFIDENCE_THRESHOLD = 0.49
+cfg_name = "/mfs/home/limengwei/car_face/car_face/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4_more_neg.py"
+weights_name = "/mfs/home/limengwei/car_face/car_face/object_detection_logs_data_both_side_finetunes/hrnet_epoch_7_head944_conf049.pth"
 
 
 no_discard_change_dlg = False 
@@ -239,13 +251,14 @@ class MainWindow(QMainWindow, WindowMixin):
             | QDockWidget.DockWidgetFloatable
         self.dock.setFeatures(self.dock.features() ^ self.dockFeatures)
 
-        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
         try:
             self.net = None
-            self.model = Darknet(yolov3_cfg_name, IMG_SIZE)
-            self.model.load_state_dict(torch.load(yolov3_pt_name, map_location='cpu')['model'])
-            self.model.to(device).eval()
+            #self.model = Darknet(cfg_name, IMG_SIZE)
+            #self.model.load_state_dict(torch.load(weights_name, map_location='cpu')['model'])
+            self.model = self.get_mmd_model_and_template(cfg_name, weights_name) 
+            self.model.to(self.device).eval()
         except Exception as ex:
             print('no pre-trained model loaded.\n', repr(ex))
 
@@ -516,6 +529,15 @@ class MainWindow(QMainWindow, WindowMixin):
         self.populateModeActions()
 
     ## Support Functions ##
+    def get_mmd_model_and_template(self, _mmd_config, _mmd_weights):
+        cfg = mmcv.Config.fromfile(_mmd_config)
+        # set cudnn_benchmark
+        if cfg.get('cudnn_benchmark', False):
+            torch.backends.cudnn.benchmark = True
+        cfg.model.pretrained = None
+        cfg.data.test.test_mode = True
+        model = init_detector(_mmd_config, _mmd_weights)
+        return model
 
     def noShapes(self):
         return not self.itemsToShapes
@@ -1307,7 +1329,38 @@ class MainWindow(QMainWindow, WindowMixin):
                 self.insertLabels(c,[(x1,y1),(x2,y1),(x2,y2),(x1,y2)])
                 print(c )
             
-        
+    def single_gpu_frame_detection(self, model, _data, CONFIDENCE_THRESHOLD, show=False):
+       #print("Using confidence score:", CONFIDENCE_THRESHOLD)
+       model.eval()
+       start = time.time()
+       result = inference_detector(model, _data)
+       elapsed_time = time.time()-start
+       labels = np.concatenate([
+                              np.full(bbox.shape[0], i, dtype=np.int32)
+                             for i, bbox in enumerate(result)])
+       #labels = labels + 1
+       bboxes = np.vstack(result)
+       x1s = np.array([], dtype=int)
+       y1s = np.array([], dtype=int)
+       x2s = np.array([], dtype=int)
+       y2s = np.array([], dtype=int)
+       scores = np.array([])
+       label_names = []
+       for label,bbox in zip(labels,bboxes):
+           threshold = bbox[-1]
+           if threshold < CONFIDENCE_THRESHOLD:
+               continue
+           x1,y1 = bbox[0],bbox[1]
+           x2,y2 = bbox[2],bbox[3]
+           x1s = np.hstack((x1s, x1))
+           y1s = np.hstack((y1s, y1))
+           x2s = np.hstack((x2s, x2))
+           y2s = np.hstack((y2s, y2))
+           scores = np.hstack((scores, threshold))
+           label_names.append(label)
+       exlabelimg_bboxes = np.hstack((np.hstack((bboxes, bboxes[:,-1].reshape(-1,1))), labels.reshape(-1,1)))
+       exlabelimg_bboxes = FloatTensor(exlabelimg_bboxes).to(self.device)
+       return exlabelimg_bboxes
 
     def markImg(self, _value=False):        
         if self.filePath is None:
@@ -1321,6 +1374,7 @@ class MainWindow(QMainWindow, WindowMixin):
              
         print('trying to mark on ', filename)
 
+        #YOLO classes:
         classes = {
             0:"other",
             1:"background",
@@ -1355,11 +1409,18 @@ class MainWindow(QMainWindow, WindowMixin):
             30:"straight yarn",
             31:"yarn uniformization"
         }
+        #MMD car_face classes:
+        classes = {0:"angle", 1:"top", 2:"head"}
+
         # classes = {i:str(i) for i in range(10)}
-
+        #YOLO:
         x, pic = prepare_img(filename, img_size = IMG_SIZE, diff_multi = 2)
-        boxes = inference_nms(self.model, x, pic, conf_thres=0.3, nms_thres=0.3, img_size = IMG_SIZE)
-
+        #boxes = inference_nms(self.model, x, pic, conf_thres=0.3, nms_thres=0.3, img_size = IMG_SIZE)
+        #MMDetection:
+        cam_frame = skimage.io.imread(filename)
+        cam_frame = skimage.color.gray2rgb(cam_frame).astype(np.float32)/255.0
+        net_cam_frame = cam_frame*255
+        boxes = self.single_gpu_frame_detection(self.model, net_cam_frame, CONFIDENCE_THRESHOLD, show=False)
         if boxes is None or len(boxes) < 1:
             print("not find target!")
             return
