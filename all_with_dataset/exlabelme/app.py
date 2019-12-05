@@ -1843,7 +1843,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def insertLabels(self,  label = '0' ,
                             points = [(111, 333), (222, 333), (222, 444), (111, 444)] ):
-        shape = Shape(label=label)
+        shape = Shape(label=label, shape_type='rectangle')
+        if shape.shape_type is 'rectangle':
+            points = [points[0], points[2]] 
         for x, y in points:
             shape.addPoint(QtCore.QPointF(x, y))
         shape.difficult = False
