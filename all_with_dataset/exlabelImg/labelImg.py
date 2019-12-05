@@ -69,8 +69,8 @@ __appname__ = 'labelImg'
 
 IMG_SIZE = 1024
 CONFIDENCE_THRESHOLD = 0.49
-cfg_name = "/mfs/home/limengwei/car_face/car_face/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4_more_neg.py"
-weights_name = "/mfs/home/limengwei/car_face/car_face/object_detection_logs_data_both_side_finetunes/hrnet_epoch_7_head944_conf049.pth"
+cfg_name = "/home/user/8image/PersonDetection18/car_face/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4_more_neg.py"
+weights_name = "/home/user/8image/PersonDetection18/car_face/object_detection_logs_data_both_side_finetunes/hrnet_epoch_7_head944_conf049.pth"
 
 
 no_discard_change_dlg = False 
