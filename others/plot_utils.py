@@ -533,26 +533,27 @@ def visual(Y, predicted, method, args, extra=None, title=None, epoch=None):
     plt.legend()
     plt.savefig("../gifs/%s_%s.png"%(args.further_mode, str(epoch).zfill(4)))
     if args.VISUALIZATION:
-        #plt.draw()
-        #plt.pause(0.001)
-        plt.show()
+        plt.draw()
+        plt.pause(0.001)
+        #embed()
+        #plt.show()
 
 def check_distribution(inputs, columns_names, args):
-    num_subplots = len(inputs)
-    axs = []
-    n = int(np.ceil(np.sqrt(num_subplots)))
-    fig, axes = plt.subplots(n,n)
-    if n>1:
-        for i, dim in enumerate(inputs):
-            axes.flatten()[i].hist(dim, bins=100)
-            axes.flatten()[i].set_ylabel(columns_names[i])
-        while i < n*n-1:
-            axes.flatten()[i].axis("off")
-            i += 1
-    else:
-        axes.hist(inputs.reshape(-1), bins=100)
-        axes.set_ylabel(columns_names)
     if args.VISUALIZATION:
+        num_subplots = len(inputs)
+        axs = []
+        n = int(np.ceil(np.sqrt(num_subplots)))
+        fig, axes = plt.subplots(n,n)
+        if n>1:
+            for i, dim in enumerate(inputs):
+                axes.flatten()[i].hist(dim, bins=100)
+                axes.flatten()[i].set_ylabel(columns_names[i])
+            while i < n*n-1:
+                axes.flatten()[i].axis("off")
+                i += 1
+        else:
+            axes.hist(inputs.reshape(-1), bins=100)
+            axes.set_ylabel(columns_names)
         plt.show()
     return
 
