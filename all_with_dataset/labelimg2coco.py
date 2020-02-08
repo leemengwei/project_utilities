@@ -8,7 +8,7 @@ import json
 import xml.etree.ElementTree as ET
 from tqdm import tqdm
 from IPython import embed
-
+import glob
 START_BOUNDING_BOX_ID = 1
 PRE_DEFINE_CATEGORIES = {}
 # If necessary, pre-define category and its id
@@ -50,17 +50,19 @@ def label_reassign(label, reassign_list):
         pass
     return label
 
-def convert(xml_list, xml_dir, json_file, reassign_list, label_to_id):
-    list_fp = open(xml_list, 'r')
-    num = int(os.popen("cat %s|wc -l"%xml_list).read())
+def convert(xml_dir, json_file, reassign_list, label_to_id):
+    #list_fp = open(xml_list, 'r')
+    #num = int(os.popen("cat %s|wc -l"%xml_list).read())
+    list_fp = glob.glob("./%s/*.xml"%xml_dir)
     json_dict = {"images":[], "type": "instances", "annotations": [],
                  "categories": []}
     categories = PRE_DEFINE_CATEGORIES
     bnd_id = START_BOUNDING_BOX_ID
-    for idx,line in tqdm(enumerate(list_fp), total=num):
+    for idx,line in tqdm(enumerate(list_fp), total=len(list_fp)):
         line = line.strip()
         #print("Processing %s"%(line))
-        xml_f = os.path.join(xml_dir, line)
+        #xml_f = os.path.join(xml_dir, line)
+        xml_f = line
         tree = ET.parse(xml_f)
         root = tree.getroot()
         path = get(root, 'path')
@@ -117,12 +119,15 @@ def convert(xml_list, xml_dir, json_file, reassign_list, label_to_id):
     json_str = json.dumps(json_dict,indent=4, separators=(',', ': '))
     json_fp.write(json_str)
     json_fp.close()
-    list_fp.close()
+    #list_fp.close()
 
 
 if __name__ == '__main__':
     reassign_list = None
     reassign_list = {"head":"head", "head1":"head", "head2":"head", "head3":"head", "head4":"head", "head5":"head", "head6":"head", "angle_r":"angle", "angle":"angle", "top_r":"top", "top":"top"}
     label_to_id = {"angle":1, "top":2, "head":3}
-
-    convert("XML_LIST.txt", './', 'output_json.json', reassign_list, label_to_id)
+    
+    #xml_dir = "pool_train"
+    assert sys.argv[1], "what is your labelImg generated png&xml path?"
+    xml_dir = sys.argv[1]
+    convert(xml_dir, '%s.json'%xml_dir.strip('.').strip('/'), reassign_list, label_to_id)

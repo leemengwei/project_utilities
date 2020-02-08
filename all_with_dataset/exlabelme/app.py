@@ -1,3 +1,5 @@
+#LMW: UPON version labelme 3.15.2
+#LabelMe give ouput json, LabelImg give out xml.
 import functools
 import os
 import os.path as osp
@@ -51,8 +53,8 @@ from mmdet.apis import inference_detector, show_result,init_detector
 # - Zoom is too "steppy".
 
 CONFIDENCE_THRESHOLD = 0.49
-cfg_name = "/home/user/8image/PersonDetection18/car_face/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4_more_neg.py"
-weights_name = "/home/user/8image/PersonDetection18/car_face/object_detection_logs_data_both_side_finetunes/hrnet_epoch_7_head944_conf049.pth"
+cfg_name = "/mfs/home/limengwei/car_face/car_face/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4_more_neg.py"
+weights_name = "/mfs/home/limengwei/car_face/car_face/object_detection_logs_data_both_side_finetunes/hrnet_epoch_7_head944_conf049.pth"
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -339,14 +341,10 @@ class MainWindow(QtWidgets.QMainWindow):
         undoLastPoint = action('Undo last point', self.canvas.undoLastPoint,
                                shortcuts['undo_last_point'], 'undo',
                                'Undo last drawn point', enabled=False)
-        addPointToEdge = action(
-            'Add Point to Edge',
-            self.canvas.addPointToEdge,
-            shortcuts['add_point_to_edge'],
-            'edit',
-            'Add point to the nearest edge',
-            enabled=False,
-        )
+        addPoint = action('Add Point to Edge', self.canvas.addPointToEdge,
+                          #shortcuts['add_point_to_edge'], 'edit', 'Add point to the nearest edge',
+                          None, 'edit', 'Add point to the nearest edge',
+                          enabled=False)
 
         undo = action('Undo', self.undoShapeEdit, shortcuts['undo'], 'undo',
                       'Undo last add and edit of shape', enabled=False)
@@ -445,7 +443,7 @@ class MainWindow(QtWidgets.QMainWindow):
             toggleKeepPrevMode=toggle_keep_prev_mode,
             delete=delete, edit=edit, copy=copy,
             undoLastPoint=undoLastPoint, undo=undo,
-            addPointToEdge=addPointToEdge,
+            addPoint=addPoint,
             createMode=createMode, editMode=editMode,
             createRectangleMode=createRectangleMode,
             createCircleMode=createCircleMode,
@@ -460,21 +458,8 @@ class MainWindow(QtWidgets.QMainWindow):
             fileMenuActions=(open_, opendir, save, saveAs, close, quit),
             tool=(),
             # XXX: need to add some actions here to activate the shortcut
-            editMenu=(
-                edit,
-                copy,
-                delete,
-                None,
-                undo,
-                undoLastPoint,
-                None,
-                addPointToEdge,
-                None,
-                color1,
-                color2,
-                None,
-                toggle_keep_prev_mode,
-            ),
+            editMenu=(edit, copy, delete, None, undo, undoLastPoint,
+                      None, addPoint, None, color1, color2, None, toggle_keep_prev_mode),
             # menu shown at right click
             menu=(
                 createMode,
@@ -491,7 +476,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 shapeFillColor,
                 undo,
                 undoLastPoint,
-                addPointToEdge,
+                addPoint,
             ),
             onLoadActive=(
                 close,
@@ -506,9 +491,7 @@ class MainWindow(QtWidgets.QMainWindow):
             onShapesPresent=(saveAs, hideAll, showAll),
         )
 
-        self.canvas.edgeSelected.connect(
-            self.actions.addPointToEdge.setEnabled
-        )
+        self.canvas.edgeSelected.connect(self.actions.addPoint.setEnabled)
 
         self.menus = utils.struct(
             file=self.menu('&File'),
@@ -596,7 +579,7 @@ class MainWindow(QtWidgets.QMainWindow):
             fitWindow,
             fitWidth,
         )
-
+        print("MarkMarkMarkMarkMarkMarkMarkMarkMarkMarkMarkMarkMark")
         self.statusBar().showMessage('%s started.' % __appname__)
         self.statusBar().show()
 
@@ -952,23 +935,39 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.loadFile(filename)
 
     # React to canvas signals.
-    def shapeSelectionChanged(self, selected_shapes):
-        self._noSelectionSlot = True
-        for shape in self.canvas.selectedShapes:
-            shape.selected = False
-        self.labelList.clearSelection()
-        self.canvas.selectedShapes = selected_shapes
-        for shape in self.canvas.selectedShapes:
-            shape.selected = True
-            item = self.labelList.get_item_from_shape(shape)
-            item.setSelected(True)
-        self._noSelectionSlot = False
-        n_selected = len(selected_shapes)
-        self.actions.delete.setEnabled(n_selected)
-        self.actions.copy.setEnabled(n_selected)
-        self.actions.edit.setEnabled(n_selected == 1)
-        self.actions.shapeLineColor.setEnabled(n_selected)
-        self.actions.shapeFillColor.setEnabled(n_selected)
+    def shapeSelectionChanged(self, selected=False):
+        if self._noSelectionSlot:
+            self._noSelectionSlot = False
+        else:
+            shape = self.canvas.selectedShape
+            if shape:
+                item = self.labelList.get_item_from_shape(shape)
+                item.setSelected(True)
+            else:
+                self.labelList.clearSelection()
+        self.actions.delete.setEnabled(selected)
+        self.actions.copy.setEnabled(selected)
+        self.actions.edit.setEnabled(selected)
+        self.actions.shapeLineColor.setEnabled(selected)
+        self.actions.shapeFillColor.setEnabled(selected)
+
+    #def shapeSelectionChanged(self, selected_shapes):
+    #    self._noSelectionSlot = True
+    #    for shape in self.canvas.selectedShapes:
+    #        shape.selected = False
+    #    self.labelList.clearSelection()
+    #    self.canvas.selectedShapes = selected_shapes
+    #    for shape in self.canvas.selectedShapes:
+    #        shape.selected = True
+    #        item = self.labelList.get_item_from_shape(shape)
+    #        item.setSelected(True)
+    #    self._noSelectionSlot = False
+    #    n_selected = len(selected_shapes)
+    #    self.actions.delete.setEnabled(n_selected)
+    #    self.actions.copy.setEnabled(n_selected)
+    #    self.actions.edit.setEnabled(n_selected == 1)
+    #    self.actions.shapeLineColor.setEnabled(n_selected)
+    #    self.actions.shapeFillColor.setEnabled(n_selected)
 
     def addLabel(self, shape):
         item = QtWidgets.QListWidgetItem(shape.label)

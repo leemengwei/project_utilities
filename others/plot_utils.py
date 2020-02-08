@@ -528,7 +528,7 @@ def visual(Y, predicted, method, args, extra=None, title=None, epoch=None):
         ax1.scatter(range(len(Y.reshape(-1)))[::skipper], Y.reshape(-1)[::skipper], label='real', s=0.5)
         ax1.scatter(np.array(range(len(predicted)))[train_index][::skipper], predicted[train_index][::skipper], label='trainset %s predicted'%method, s=0.5)
         ax1.scatter(np.array(range(len(predicted)))[val_index][::skipper], predicted[val_index][::skipper], label='valset %s predicted'%method, s=2)
-    plt.title("Relative error rate: {:.2f}%".format(np.array(title[1])))
+    plt.title("Relative error rate: {0:.2f}%, epoch: {1:.1f}".format(np.array(title), epoch))
     #plt.ylim(-3, 3)
     plt.legend()
     plt.savefig("../gifs/%s_%s.png"%(args.further_mode, str(epoch).zfill(4)))
@@ -537,6 +537,16 @@ def visual(Y, predicted, method, args, extra=None, title=None, epoch=None):
         plt.pause(0.001)
         #embed()
         #plt.show()
+
+#Neat plot line with some mannual colors:
+#f,ax1 = plt.subplots()
+#lineobj = ax1.plot(raw_data_X.T)
+#for idx,line in enumerate(ax1.lines): 
+#    line.set_color(plt.cm.Spectral_r(np.linspace(0,1,100))[idx])
+
+#Neat legend:
+#lineobj = plt.plot(raw_data_X.T[:,:])
+#plt.legend(iter(lineobj), list(range(25)))
 
 def check_distribution(inputs, columns_names, args):
     if args.VISUALIZATION:
