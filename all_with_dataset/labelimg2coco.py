@@ -72,6 +72,9 @@ def convert(xml_dir, json_file, reassign_list, label_to_id):
             filename = get_and_check(root, 'filename', 1).text
         else:
             raise NotImplementedError('%d paths found in %s'%(len(path), line))
+        if len(filename)>60:
+            print("%s is too long, Might from windows? using %s instead"%(filename, filename.split('\\')[-1]), "you might want to check output.xml")
+        filename = filename.split('\\')[-1]
         ## The filename must be a number
         #image_id = get_filename_as_int(filename)
         image_id = idx

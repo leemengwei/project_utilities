@@ -552,9 +552,9 @@ def check_distribution(inputs, columns_names, args):
     if args.VISUALIZATION:
         num_subplots = len(inputs)
         axs = []
-        n = int(np.ceil(np.sqrt(num_subplots)))
-        fig, axes = plt.subplots(n,n)
+        n = int(np.floor(np.sqrt(num_subplots)))
         if n>1:
+            fig, axes = plt.subplots(n,n+1)
             for i, dim in enumerate(inputs):
                 axes.flatten()[i].hist(dim, bins=100)
                 axes.flatten()[i].set_ylabel(columns_names[i])
@@ -562,6 +562,7 @@ def check_distribution(inputs, columns_names, args):
                 axes.flatten()[i].axis("off")
                 i += 1
         else:
+            fig, axes = plt.subplots(n)
             axes.hist(inputs.reshape(-1), bins=100)
             axes.set_ylabel(columns_names)
         plt.show()
@@ -626,7 +627,28 @@ except:
         print("No vispy, Not Implemented.")
 
 
-
+def response_surface(ax, model, inputs):
+    import torch
+    num_of_points = 10000
+    inputs = np.zeros([num_of_points, inputs.shape[1]])
+    model = model.cpu()
+    axis_name = ["Pos", "speed", "fg", "ft", "temp"]
+    mins = np.array([-1.52684, -3.4015458, -2.647514, -4.54, 0])
+    maxs = np.array([1.6650847, 3.4287121, 4.0073028, 4.815, 0])
+    spec_through = ["Postion", "Speed"]   #pos and speed
+    scaler = np.abs(np.vstack((mins, maxs))).max(axis=0)
+    for i, name in enumerate(spec_through):
+        inputs[:,i] = (np.random.random(num_of_points)-0.5)*scaler[i]*2
+    outputs = np.array(model(torch.FloatTensor(inputs)).cpu().detach())
+    embed()
+    #ax.scatter3D(inputs[:,0], inputs[:,1], outputs, s=1, color=cm.jet(outputs.reshape(-1)),vmin=-0.1,vmax=0.1, alpha=0.8)
+    ax.scatter3D(inputs[:,0], inputs[:,1], outputs, s=1, cmap='jet',vmin=outputs.min(),vmax=outputs.max(), alpha=0.8)
+    ax.set_title("Response of %s-%s-friction"%tuple(spec_through))
+    ax.set_xlabel(spec_through[0])
+    ax.set_ylabel(spec_through[1])
+    ax.set_zlabel("Friction")
+    #plt.show()
+    return
 
 
 
