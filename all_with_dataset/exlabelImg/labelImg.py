@@ -67,12 +67,15 @@ from models import Darknet
 __appname__ = 'labelImg'
 
 
-IMG_SIZE = 1024
-CONFIDENCE_THRESHOLD = 0.49
+IMG_SIZE = 960
+CONFIDENCE_THRESHOLD = 0.77
 #cfg_name = "/home/user/8image/PersonDetection18/car_face/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4_more_neg.py"
 #weights_name = "/home/user/8image/PersonDetection18/car_face/object_detection_logs_data_both_side_finetunes/hrnet_epoch_7_head944_conf049.pth"
-cfg_name = "/mfs/home/limengwei/car_face/car_face/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4_more_neg.py"
-weights_name = "/mfs/home/limengwei/car_face/car_face/object_detection_logs_data_both_side_finetunes/hrnet_epoch_7_head944_conf049.pth"
+#cfg_name = "/mfs/home/limengwei/car_face/car_face/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4_more_neg.py"
+#weights_name = "/mfs/home/limengwei/car_face/car_face/object_detection_logs_data_both_side_finetunes/hrnet_epoch_7_head944_conf049.pth"
+cfg_name = "/home/user/PersonDetectConsole1/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4.py"
+#weights_name = "/home/user/PersonDetection1111/car_face/object_detection_logs_data_both_side_finetunes/hrnet_night_and_day.pth" 
+weights_name = "/home/user/epoch_24.pth"
 
 no_discard_change_dlg = False 
 
@@ -261,7 +264,7 @@ class MainWindow(QMainWindow, WindowMixin):
             self.model = self.get_mmd_model_and_template(cfg_name, weights_name) 
             self.model.to(self.device).eval()
         except Exception as ex:
-            print('no pre-trained model loaded.\n', repr(ex))
+            print('no pre-trained model loaded. due to \n', repr(ex))
 
         # Actions
         action = partial(newAction, self)
