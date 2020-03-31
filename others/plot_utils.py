@@ -640,9 +640,8 @@ def response_surface(ax, model, inputs):
     for i, name in enumerate(spec_through):
         inputs[:,i] = (np.random.random(num_of_points)-0.5)*scaler[i]*2
     outputs = np.array(model(torch.FloatTensor(inputs)).cpu().detach())
-    embed()
-    #ax.scatter3D(inputs[:,0], inputs[:,1], outputs, s=1, color=cm.jet(outputs.reshape(-1)),vmin=-0.1,vmax=0.1, alpha=0.8)
-    ax.scatter3D(inputs[:,0], inputs[:,1], outputs, s=1, cmap='jet',vmin=outputs.min(),vmax=outputs.max(), alpha=0.8)
+    _normed_ = (outputs-outputs.min()) / (outputs.max()-outputs.min())
+    ax.scatter3D(inputs[:,0], inputs[:,1], outputs, s=1, color=cm.jet(_normed_.reshape(-1)), alpha=0.8)
     ax.set_title("Response of %s-%s-friction"%tuple(spec_through))
     ax.set_xlabel(spec_through[0])
     ax.set_ylabel(spec_through[1])
