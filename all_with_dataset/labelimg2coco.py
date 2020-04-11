@@ -50,7 +50,7 @@ def label_reassign(label, reassign_list):
         pass
     return label
 
-def convert(xml_dir, json_file, reassign_list, label_to_id):
+def parse_xmls(xml_dir, reassign_list, label_to_id):
     #list_fp = open(xml_list, 'r')
     #num = int(os.popen("cat %s|wc -l"%xml_list).read())
     list_fp = glob.glob("./%s/*.xml"%xml_dir)
@@ -58,6 +58,8 @@ def convert(xml_dir, json_file, reassign_list, label_to_id):
                  "categories": []}
     categories = PRE_DEFINE_CATEGORIES
     bnd_id = START_BOUNDING_BOX_ID
+    heights = []
+    widths = []
     for idx,line in tqdm(enumerate(list_fp), total=len(list_fp)):
         line = line.strip()
         #print("Processing %s"%(line))
@@ -86,7 +88,7 @@ def convert(xml_dir, json_file, reassign_list, label_to_id):
         json_dict['images'].append(image)
         ## Cruuently we do not support segmentation
         #  segmented = get_and_check(root, 'segmented', 1).text
-        #  assert segmented == '0'
+        #  aissert segmented == '0'
         for obj in get(root, 'object'):
             raw_category = get_and_check(obj, 'name', 1).text
             category = label_reassign(raw_category, reassign_list)   #Change from head12345 to head.
@@ -105,13 +107,17 @@ def convert(xml_dir, json_file, reassign_list, label_to_id):
             assert(ymax > ymin)
             o_width = abs(xmax - xmin)
             o_height = abs(ymax - ymin)
+            widths.append(o_width)
+            heights.append(o_height)
             ann = {'area': o_width*o_height, 'iscrowd': 0, 'image_id':
                    image_id, 'bbox':[xmin, ymin, o_width, o_height],
                    'category_id': category_id, 'id': bnd_id, 'ignore': 0,
                    'segmentation': []}
             json_dict['annotations'].append(ann)
             bnd_id = bnd_id + 1
+    return categories, json_dict
 
+def dump_coco_json(json_file, categories, json_dict):
     for cate, cid in categories.items():
         cat = {'supercategory': 'none', 'id': cid, 'name': cate}
         json_dict['categories'].append(cat)
@@ -123,7 +129,7 @@ def convert(xml_dir, json_file, reassign_list, label_to_id):
     json_fp.write(json_str)
     json_fp.close()
     #list_fp.close()
-
+    return
 
 if __name__ == '__main__':
     reassign_list = None
@@ -133,4 +139,5 @@ if __name__ == '__main__':
     #xml_dir = "pool_train"
     assert sys.argv[1], "what is your labelImg generated png&xml path?"
     xml_dir = sys.argv[1]
-    convert(xml_dir, '%s.json'%xml_dir.strip('.').strip('/'), reassign_list, label_to_id)
+    categories, json_dict = parse_xmls(xml_dir, reassign_list, label_to_id)
+    dump_coco_json('%s.json'%xml_dir.strip('.').strip('/'), categories, json_dict)

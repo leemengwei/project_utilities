@@ -626,7 +626,7 @@ except:
     def GPU_2d_scatter_plot(data):
         print("No vispy, Not Implemented.")
 
-
+#In friction compensation project
 def response_surface(ax, model, inputs):
     import torch
     num_of_points = 10000
