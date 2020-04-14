@@ -140,4 +140,4 @@ if __name__ == '__main__':
     assert sys.argv[1], "what is your labelImg generated png&xml path?"
     xml_dir = sys.argv[1]
     categories, json_dict = parse_xmls(xml_dir, reassign_list, label_to_id)
-    dump_coco_json('%s.json'%xml_dir.strip('.').strip('/'), categories, json_dict)
+    dump_coco_json('%s.json'%xml_dir.strip('.').strip('/'), label_to_id, json_dict)

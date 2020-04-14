@@ -23,7 +23,8 @@ def generate_xml(images):
         data = np.tile(data, (int(h_scaler), int(w_scaler)))
         data = data[:540,:960]
         data = cv2.blur(data,(blurer,blurer))
-        image_save_as = "./tmp/%s"%(image_left.replace(alter_image_format[0], alter_image_format[1]))
+        image_save_as = "./tmp_empty_xmls/%s"%(image_left.replace(alter_image_format[0], alter_image_format[1]))
+        #WARNING:MUST SAVE to get none 0x0 image!!
         cv2.imwrite(image_save_as, data)
         labelFile.savePascalVocFormat(image_save_as.replace(alter_image_format[1],".xml"), [], image_save_as, data)   #Use one channel gray image here.
     
@@ -31,8 +32,8 @@ if __name__ == "__main__":
     image_path = sys.argv[1]
     to_gray = True
     alter_image_format = ['.jpg', '.png']
-    assert os.path.exists('./tmp/')
-    os.system("rm ./tmp/*")
+    assert os.path.exists('./tmp_empty_xmls/')
+    os.system("rm ./tmp_empty_xmls/*")
 
     images = glob.glob(image_path+"*.png")
     xmls = glob.glob(image_path+"*.xml")
