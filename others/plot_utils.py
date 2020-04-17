@@ -629,7 +629,7 @@ except:
 #In friction compensation project
 def response_surface(ax, model, inputs):
     import torch
-    num_of_points = 10000
+    num_of_points = int(1e4)
     inputs = np.zeros([num_of_points, inputs.shape[1]])
     model = model.cpu()
     axis_name = ["Pos", "speed", "fg", "ft", "temp"]
