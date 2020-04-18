@@ -75,7 +75,8 @@ def parse_xmls(xml_dir, reassign_list, label_to_id):
         else:
             raise NotImplementedError('%d paths found in %s'%(len(path), line))
         if len(filename)>60:
-            print("%s is too long, Might from windows? using %s instead"%(filename, filename.split('\\')[-1]), "you might want to check output.xml")
+            #print("%s is too long, Might from windows? using %s instead"%(filename, filename.split('\\')[-1]), "you might want to check output.xml")
+            pass
         filename = filename.split('\\')[-1]
         ## The filename must be a number
         #image_id = get_filename_as_int(filename)

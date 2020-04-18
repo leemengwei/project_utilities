@@ -213,7 +213,7 @@ def convert(path_to_json, path_to_xml, easy_mode=True, rect=None):
     if True: #easy_mode:
         create_xml(path_to_xml, layout, labels)
         cv2.imwrite(get_path_to_img(path_to_xml), img)
-        print(get_path_to_img(path_to_xml))
+        #print(get_path_to_img(path_to_xml))
     #else:
     #    images, labels = get_splitted_images(img, labels)
     #    paths = [path_to_xml[:-len(XML_FILTER)] + "_" + str(i) + XML_FILTER for i in range(len(images))]
