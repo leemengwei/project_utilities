@@ -27,9 +27,9 @@ for idx,this_file in tqdm.tqdm(enumerate(filelist[:]), total=len(filelist)):
     plt.clf()
     images = glob.glob(this_file+"/*.png")
     images.sort()
-    images = [images[0], images[1], images[3], images[4]]
+    images = [images[0], images[6], images[3], images[8]]
     print("num of images:", len(images))
-    this_file = this_file.replace(" ", "\ ")
+    #this_file = this_file.replace(" ", "\ ")
     cmd = 'mv %s %s'%(this_file, './mannual_select_del/')
     n = int(np.sqrt(len(images)))
     axes = fig.subplots(2,2).reshape(-1)
@@ -49,11 +49,11 @@ for idx,this_file in tqdm.tqdm(enumerate(filelist[:]), total=len(filelist)):
     if len(key)>0:
         if not os.path.exists("./%s"%key):os.system("mkdir %s"%key)
         cmd = 'mv %s %s'%(this_file, "./%s/"%key)
+        shutil.move(this_file, "./%s/"%key)
         print(cmd)
     else:
         cmd = ''
         print('pass %s pass'%(this_file))
-    os.system(cmd)
     
     
     
