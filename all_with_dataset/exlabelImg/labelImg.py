@@ -73,9 +73,10 @@ CONFIDENCE_THRESHOLD = 0.77
 #weights_name = "/home/user/8image/PersonDetection18/car_face/object_detection_logs_data_both_side_finetunes/hrnet_epoch_7_head944_conf049.pth"
 #cfg_name = "/mfs/home/limengwei/car_face/car_face/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4_more_neg.py"
 #weights_name = "/mfs/home/limengwei/car_face/car_face/object_detection_logs_data_both_side_finetunes/hrnet_epoch_7_head944_conf049.pth"
-cfg_name = "/home/user/PersonDetectConsole1/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4.py"
+#cfg_name = "/home/user/PersonDetectConsole1/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4.py"
+cfg_name = "/home/user/lmw_git/car_face-master/mmdetection/configs/car_face/cascade_rcnn_hrnetv2p_w32_20e_4.py"
 #weights_name = "/home/user/PersonDetection1111/car_face/object_detection_logs_data_both_side_finetunes/hrnet_night_and_day.pth" 
-weights_name = "/home/user/epoch_24.pth"
+weights_name = "/home/user/lmw_git/car_face-master/object_detection_logs_data_both_side_finetunes/epoch_18_front_FP3684.pth"
 
 no_discard_change_dlg = False 
 

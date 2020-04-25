@@ -49,7 +49,13 @@ for idx,this_file in tqdm.tqdm(enumerate(filelist[:]), total=len(filelist)):
     if len(key)>0:
         if not os.path.exists("./%s"%key):os.system("mkdir %s"%key)
         cmd = 'mv %s %s'%(this_file, "./%s/"%key)
-        shutil.move(this_file, "./%s/"%key)
+        try:
+            shutil.move(this_file, "./%s/"%key)
+        except Exception as e:
+            if "already exists" in str(e):
+                pass
+            else:
+                raise e
         print(cmd)
     else:
         cmd = ''

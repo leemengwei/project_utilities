@@ -14,7 +14,9 @@ if __name__ == '__main__':
     pngs = glob.glob(png_dir+"/*.png")
     xmls = glob.glob(png_dir+"/*.xml")
     pngs_with_xml = '|'.join(xmls).replace('.xml','.png').split('|')
+    xmls_with_png = '|'.join(pngs).replace('.png','.xml').split('|')
     pngs_without_xml = list(set(pngs) - set(pngs_with_xml))
+    xmls_without_png = list(set(xmls) - set(xmls_with_png))
     if len(pngs_without_xml)>0:
         print("There %s pngs without xml! Your sure want to move them to ./not_labeled/ ??"%len(pngs_without_xml))
         input()
@@ -22,6 +24,14 @@ if __name__ == '__main__':
         input()
         if not os.path.exists("./not_labeled/"):os.system('mkdir not_labeled')
         for _i in pngs_without_xml:
+            shutil.move(_i, "./not_labeled/"+_i.split('/')[-1])
+    if len(xmls_without_png)>0:
+        print("There %s xmls without png! Your sure want to move them to ./not_labeled/ ??"%len(xmls_without_png))
+        input()
+        input()
+        input()
+        if not os.path.exists("./not_labeled/"):os.system('mkdir not_labeled')
+        for _i in xmls_without_png:
             shutil.move(_i, "./not_labeled/"+_i.split('/')[-1])
     to_gray = True
 
