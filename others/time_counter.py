@@ -8,6 +8,7 @@ def calc_time(func):
         end_time = datetime.datetime.now()
         ss = (end_time - start_time).total_seconds()
         if ss>0.5:
-            print('<{}> takes {}s.'.format(func.__name__, ss))
+            #print('<{}> takes {}s.'.format(func.__name__, ss))
+            pass
         return out
     return wrapper
