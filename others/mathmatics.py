@@ -1,6 +1,6 @@
 import math
 
-def precision_and_scale(x):
+def scale_and_precision(x):
     max_digits = 14
     int_part = int(abs(x))
     magnitude = 1 if int_part == 0 else int(math.log10(int_part)) + 1
