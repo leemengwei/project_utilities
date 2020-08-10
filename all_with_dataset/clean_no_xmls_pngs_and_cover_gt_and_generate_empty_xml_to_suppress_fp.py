@@ -13,6 +13,7 @@ if __name__ == '__main__':
     png_dir = sys.argv[1]
     pngs = glob.glob(png_dir+"/*.png")
     xmls = glob.glob(png_dir+"/*.xml")
+    print("Num of pngs and xmls:", len(pngs), len(xmls))
     pngs_with_xml = '|'.join(xmls).replace('.xml','.png').split('|')
     xmls_with_png = '|'.join(pngs).replace('.png','.xml').split('|')
     pngs_without_xml = list(set(pngs) - set(pngs_with_xml))

@@ -627,7 +627,7 @@ except:
         print("No vispy, Not Implemented.")
 
 #In friction compensation project
-def response_surface(ax, model, inputs):
+def response_surface(ax, model, inputs, plot=True):
     import torch
     num_of_points = int(1e4)
     inputs = np.zeros([num_of_points, inputs.shape[1]])

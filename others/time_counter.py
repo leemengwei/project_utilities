@@ -7,7 +7,7 @@ def calc_time(func):
         out = func(*args, **kw) 
         end_time = datetime.datetime.now()
         ss = (end_time - start_time).total_seconds()
-        if ss>0.5:
+        if 1: #ss>0.5:
             print('<{}> takes {}s.'.format(func.__name__, ss))
         return out
     return wrapper
