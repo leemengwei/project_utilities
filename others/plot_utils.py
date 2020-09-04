@@ -505,6 +505,25 @@ def hist_distribution(data):
     data.plot.hist(bins=250)
     return
 
+#----------Friction compensate:
+def visual_predict_val(Y, predicted, epoch):
+    plt.clf()
+    ax1 = plt.subplot(121)
+    ax2 = plt.subplot(122)
+    predicted = np.array(predicted.reshape(-1))
+    ax1.scatter(range(len(Y.reshape(-1))), Y.reshape(-1), label='real', s=0.5)
+    ax1.scatter(range(len(predicted)), predicted, label='predicted', s=0.5)
+    ax1.legend()
+    ax2.scatter(Y, predicted, s=0.2, label="target VS prediction")
+    ax2.set_xlabel("real label")
+    ax2.set_ylabel("predicted")
+    ax2.legend()
+
+    plt.suptitle('prediction vs label, epoch %s'%epoch)
+    plt.legend()
+    plt.savefig("../outputs/%s.png"%str(epoch).zfill(6))
+    plt.draw()
+    plt.pause(0.001)
 
 #----------Friction compensate:
 def visual(Y, predicted, method, args, extra=None, title=None, epoch=None):
@@ -528,10 +547,14 @@ def visual(Y, predicted, method, args, extra=None, title=None, epoch=None):
         ax1.scatter(range(len(Y.reshape(-1)))[::skipper], Y.reshape(-1)[::skipper], label='real', s=0.5)
         ax1.scatter(np.array(range(len(predicted)))[train_index][::skipper], predicted[train_index][::skipper], label='trainset %s predicted'%method, s=0.5)
         ax1.scatter(np.array(range(len(predicted)))[val_index][::skipper], predicted[val_index][::skipper], label='valset %s predicted'%method, s=2)
-    plt.title("Relative error rate: {0:.2f}%, epoch: {1:.1f}".format(np.array(title), epoch))
+    if title != None:
+        plt.title("Relative error rate: {0:.2f}%, epoch: {1:.1f}".format(np.array(title), epoch))
     #plt.ylim(-3, 3)
     plt.legend()
-    plt.savefig("../gifs/%s_%s.png"%(args.further_mode, str(epoch).zfill(4)))
+    try:
+        plt.savefig("../gifs/%s_%s.png"%(args.further_mode, str(epoch).zfill(4)))
+    except:
+        pass
     if args.VISUALIZATION:
         plt.draw()
         plt.pause(0.001)
@@ -548,6 +571,30 @@ def visual(Y, predicted, method, args, extra=None, title=None, epoch=None):
 #lineobj = plt.plot(raw_data_X.T[:,:])
 #plt.legend(iter(lineobj), list(range(25)))
 
+def check_distribution_power(inputs, columns_names, args):
+    if args.VISUALIZATION:
+        num_subplots = inputs.shape[1]
+        axs = []
+        n = int(np.floor(np.sqrt(num_subplots)))
+        if n>1:
+            fig, axes = plt.subplots(n,n+1)
+            for i in range(inputs.shape[1]):
+                print('drawing', i)
+                dim = inputs[:,i]
+                axes.flatten()[i].hist(dim, bins=100)
+                axes.flatten()[i].set_ylabel(columns_names[i])
+            while i < n*n-1:
+                axes.flatten()[i].axis("off")
+                i += 1
+            plt.suptitle("Normed input features")
+        else:
+            fig, axes = plt.subplots(n)
+            axes.hist(inputs.reshape(-1), bins=100)
+            axes.set_ylabel(columns_names)
+            plt.suptitle("Normed output labels")
+        plt.show()
+    return
+
 def check_distribution(inputs, columns_names, args):
     if args.VISUALIZATION:
         num_subplots = len(inputs)
@@ -556,6 +603,7 @@ def check_distribution(inputs, columns_names, args):
         if n>1:
             fig, axes = plt.subplots(n,n+1)
             for i, dim in enumerate(inputs):
+                print('drawing', i)
                 axes.flatten()[i].hist(dim, bins=100)
                 axes.flatten()[i].set_ylabel(columns_names[i])
             while i < n*n-1:
