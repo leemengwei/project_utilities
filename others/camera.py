@@ -1,7 +1,7 @@
 import cv2
 import matplotlib.pyplot as plt
 cap = cv2.VideoCapture("rtsp://username:passport@ip:port/Streaming/Channels/1")
-cap = cv2.VideoCapture("rtsp://admin:a12345678@10.100.22.40:554/h264/ch1/main/av_stream")
+cap = cv2.VideoCapture("rtsp:///h264/ch1/main/av_stream")
 ret, frame = cap.read()
 while ret:
     ret, frame = cap.read()
