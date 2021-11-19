@@ -1,6 +1,8 @@
 #bash
 
 #make GIF:
+ffmpeg -f image2 -framerate 24 -i %03d.jpg -loop 0 simpson.gif
+
 convert -delay 0 *.png -loop 0 output.gif
 
 #xargs:
